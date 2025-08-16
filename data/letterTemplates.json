@@ -1,0 +1,140 @@
+[
+  {
+    "id": "jobOffer",
+    "title": "Job offer letter",
+    "length": "5–8 pages",
+    "prompt": "Generate a comprehensive IT-sector job offer letter for [Company Name] to [Candidate Name] for [Job Title] in [Department] at [Location], start date [Start Date]. Include: CTC table with fixed/variable/benefits, ESOP (if any), probation terms, notice period, working hours, leave summary, remote/hybrid policy, background verification and medical fitness contingencies, confidentiality, IP assignment, non-solicitation, data privacy (India + [State] Shops & Establishments), code of conduct, acceptance deadline, required documents, and annexures (CTC breakup, policy acknowledgments). Use clear headings, numbered clauses, and a formal, precise tone."
+  },
+  {
+    "id": "appointment",
+    "title": "Appointment letter",
+    "length": "3–5 pages",
+    "prompt": "Draft an appointment letter confirming employment of [Employee Name] as [Job Title] at [Company Name], joining on [Start Date], reporting to [Manager Name]. Define role scope, grade/band, probation/confirmation criteria, compensation reference to offer annexure, place of posting, transferability, working hours, holidays, leave, performance review cycle, confidentiality, IP, conflict of interest, compliance with [State] Shops & Establishments and IT/ITES norms, and termination/notice provisions."
+  },
+  {
+    "id": "joining",
+    "title": "Joining letter",
+    "length": "1 page",
+    "prompt": "Create a formal joining letter from [Employee Name] to [Company Name] confirming joining on [Date] as [Job Title], acknowledging receipt of offer/appointment, agreeing to terms, enclosing mandatory documents (KYC, PAN, Aadhaar, bank, education, experience), and declaring no conflicting obligations."
+  },
+  {
+    "id": "internshipOffer",
+    "title": "Internship offer / Letter of intent",
+    "length": "Up to 3 pages",
+    "prompt": "Draft an internship offer/LOI to [Intern Name] for [Internship Role] in [Team] at [Location]/remote from [Start Date] to [End Date]. Cover stipend, schedule, mentor, learning objectives, deliverables, confidentiality, IP ownership, academic credit (if any), conduct, device/access policy, and exit/extension terms."
+  },
+  {
+    "id": "probationConfirmation",
+    "title": "Probation confirmation letter",
+    "length": "1–2 pages",
+    "prompt": "Write a confirmation of employment for [Employee Name], confirming successful completion of probation on [Date] for [Job Title]. Mention performance summary, confirmation effective date, any compensation change, updated benefits eligibility, and next review cycle."
+  },
+  {
+    "id": "probationExtension",
+    "title": "Probation extension letter",
+    "length": "1–2 pages",
+    "prompt": "Draft a probation extension for [Employee Name], citing specific performance areas, extension duration [X months], measurable goals, support plan, review cadence, and consequences (confirmation or separation)."
+  },
+  {
+    "id": "employmentVerification",
+    "title": "Employment verification letter",
+    "length": "1 page",
+    "prompt": "Create an employment verification for [Employee Name], [Job Title], employed from [Start Date] to [End Date/Present], at [Company Name], [Location]. Include employment type, current CTC (if consented), and HR contact."
+  },
+  {
+    "id": "promotion",
+    "title": "Promotion letter",
+    "length": "1–2 pages",
+    "prompt": "Draft a promotion letter elevating [Employee Name] from [Current Title] to [New Title] effective [Date]. Include rationale, new role scope, grade/band, revised compensation, reporting line, and expectations for the first 90 days."
+  },
+  {
+    "id": "increment",
+    "title": "Salary increment letter",
+    "length": "1–2 pages",
+    "prompt": "Write an increment communication for [Employee Name] detailing revised CTC effective [Date], with table showing old vs. new components (fixed, variable, allowances), performance basis, and payout timelines."
+  },
+  {
+    "id": "variablePay",
+    "title": "Variable pay/bonus payout letter",
+    "length": "1–2 pages",
+    "prompt": "Prepare a variable pay letter for [Employee Name], specifying plan name, performance period, achievement metrics, payout amount, tax treatment, clawback (if any), and payment date."
+  },
+  {
+    "id": "transfer",
+    "title": "Transfer/relocation letter",
+    "length": "1–2 pages",
+    "prompt": "Draft a transfer letter moving [Employee Name] to [New Team/Role/Location] effective [Date], with reporting manager, reasons, relocation benefits (if applicable), grade/compensation impact, and transition plan."
+  },
+  {
+    "id": "remoteWork",
+    "title": "Remote/hybrid work agreement",
+    "length": "2–4 pages",
+    "prompt": "Create a remote/hybrid work addendum for [Employee Name] detailing work location, on-site cadence, work hours and time zone expectations, productivity/availability norms, data security, device/expense policy, information security controls, and revocation conditions."
+  },
+  {
+    "id": "leaveApproval",
+    "title": "Leave approval letter",
+    "length": "1 page",
+    "prompt": "Draft a leave approval for [Employee Name] granting [Leave Type] from [Start Date] to [End Date], total [Days], with handover, contact expectations, and return-to-work instructions."
+  },
+  {
+    "id": "leaveRejection",
+    "title": "Leave rejection letter",
+    "length": "1 page",
+    "prompt": "Write a leave denial for [Employee Name], citing objective reasons (business criticality, insufficient balance, documentation), suggesting alternate dates, and reaffirming policy."
+  },
+  {
+    "id": "returnToWork",
+    "title": "Return-to-work/fitness to work letter",
+    "length": "1–2 pages",
+    "prompt": "Prepare a return-to-work confirmation for [Employee Name] resuming on [Date] after [Leave Type]. Include requirement for medical fitness certificate (if applicable), any accommodations, and reporting instructions."
+  },
+  {
+    "id": "warning",
+    "title": "Warning letter",
+    "length": "1–2 pages",
+    "prompt": "Draft a formal warning to [Employee Name] describing incident(s), dates, violated policy clauses, employee response summary, required corrective actions, monitoring period, and consequences of recurrence."
+  },
+  {
+    "id": "pipInitiation",
+    "title": "Performance improvement plan (PIP) initiation letter",
+    "length": "2–3 pages",
+    "prompt": "Create a PIP letter for [Employee Name] with objective performance gaps, SMART goals, resources/support, review milestones, success criteria, and possible outcomes (success, extension, or separation)."
+  },
+  {
+    "id": "showCause",
+    "title": "Show cause notice",
+    "length": "1–2 pages",
+    "prompt": "Write a show cause notice to [Employee Name] outlining alleged misconduct/performance issues, facts and evidence summary, policy references, and requiring a written explanation by [Deadline], offering right to be heard."
+  },
+  {
+    "id": "termination",
+    "title": "Termination letter",
+    "length": "2–4 pages",
+    "prompt": "Draft a termination letter for [Employee Name] effective [Date], specifying grounds (with/without cause, redundancy), notice pay/waiver, final settlements, benefits cessation, asset return, access revocation, and statutory compliance."
+  },
+  {
+    "id": "relieving",
+    "title": "Relieving letter",
+    "length": "2 pages",
+    "prompt": "Prepare a relieving letter confirming that [Employee Name], [Job Title], has been relieved effective [Last Working Day] after handing over duties. Mention employment tenure, conduct (if appropriate), no-dues clearance, and thanks."
+  },
+  {
+    "id": "experience",
+    "title": "Experience certificate",
+    "length": "1 page",
+    "prompt": "Create an experience certificate for [Employee Name] stating tenure from [Start Date] to [End Date], last designation, key responsibilities/skills, and overall conduct (if policy permits)."
+  },
+  {
+    "id": "bgvConsent",
+    "title": "Background verification consent/request letter",
+    "length": "1–2 pages",
+    "prompt": "Draft a BGV consent/request for [Candidate/Employee Name] authorizing verification of identity, education, employment, address, and criminal records via vetted vendors, explaining purpose, data handling, retention, and contact."
+  },
+  {
+    "id": "policyCircular",
+    "title": "Policy circular/communication",
+    "length": "1–2 pages",
+    "prompt": "Write a policy circular announcing [Policy Name] (e.g., POSH, WFH, Information Security) with scope, effective date, key clauses, do’s/donts"
+  }
+]
