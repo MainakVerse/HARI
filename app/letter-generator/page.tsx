@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 "use client"
 
 import { useState, useEffect, useRef } from "react"
@@ -42,8 +40,7 @@ function RichTextEditor({
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
       .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
       .replace(/#{1,6}\s*(.*?)$/gm, '<h3>$1</h3>') // Headers
-      .replace(/^\s*[-*+]\s+(.*?)$/gm, '<li>$1</li>') // List items
-      .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>') // Wrap lists
+      .replace(/^\s*[-*+]\s+(.*?)$/gm, '• $1') // List items
       .replace(/\|/g, '') // Remove table separators
       .replace(/--/g, '—') // Replace double dashes with em dash
       .replace(/\n\n/g, '</p><p>') // Paragraphs
@@ -232,7 +229,7 @@ function VersionHistory({
   )
 }
 
-// ✅ Dropdown from shadcn/ui
+// Dropdown from shadcn/ui
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -240,7 +237,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 
-// ✅ Import your JSON file with templates
+// Import your JSON file with templates
 import letterTemplates from "../../data/letterTemplates.json"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -276,7 +273,6 @@ export default function LetterGeneratorPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
   
-  
   // New states for editing functionality
   const [isEditing, setIsEditing] = useState(false)
 
@@ -292,10 +288,9 @@ export default function LetterGeneratorPage() {
   // Mobile responsive states
   const [showMobileHistory, setShowMobileHistory] = useState(false)
 
-  // ✅ Fixed localStorage loading with proper error handling
+  // Fixed localStorage loading with proper error handling
   useEffect(() => {
     try {
-      
       if (typeof window !== 'undefined') {
         const savedHistory = localStorage.getItem("letterHistory")
         if (savedHistory) {
@@ -324,7 +319,7 @@ export default function LetterGeneratorPage() {
     }
   }, [])
 
-  // ✅ Save history to localStorage when it changes
+  // Save history to localStorage when it changes
   useEffect(() => {
     try {
       if (typeof window !== 'undefined' && history.length > 0) {
@@ -465,67 +460,92 @@ export default function LetterGeneratorPage() {
     setError(null)
 
     try {
-      let requestBody: any
+      let finalPrompt = ""
+      let templateType = ""
 
       if (selectedTemplateId) {
         const template = letterTemplates.find((t) => t.id === selectedTemplateId)
-        if (template) {
-          const variables = createVariablesObject(template.prompt)
-          requestBody = {
-            type: selectedTemplateId,
-            variables,
-          }
-        } else {
+        if (!template) {
           throw new Error("Template not found")
         }
-      } else {
-        requestBody = {
-          type: "custom",
-          customPrompt: prompt,
+
+        finalPrompt = template.prompt
+        const variables = createVariablesObject(template.prompt)
+        
+        // Replace variables in prompt
+        for (const [key, value] of Object.entries(variables)) {
+          const regex = new RegExp(`\\[${key}\\]`, "gi")
+          finalPrompt = finalPrompt.replace(regex, value || "")
         }
+        
+        templateType = template.id
+      } else {
+        finalPrompt = prompt
+        templateType = "custom"
       }
 
-      console.log("📤 Sending request body:", requestBody)
+      if (!finalPrompt.trim()) {
+        throw new Error("Prompt is empty after processing")
+      }
 
-      const response = await fetch("/api/generate-letter", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      })
+      // Construct system instruction
+      const systemInstruction = `
+        You are an HR assistant. Generate a professional business letter in clean HTML.
+        Use <p>, <h1>-<h3>, <ul>, <ol>, <li>, <strong>, <em> tags.
+        Do NOT use markdown (**bold**, --, or |).
+      `
+
+      // Direct Gemini API call
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { text: systemInstruction },
+                  { text: finalPrompt }
+                ]
+              }
+            ]
+          }),
+        }
+      )
 
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error("❌ API Error Response:", errorText)
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        const error = await response.text()
+        console.error("❌ Gemini API error:", error)
+        throw new Error(`API Error: ${error}`)
       }
 
       const data = await response.json()
-      console.log("✅ API Response:", data)
+      console.log("✅ Gemini response:", data)
 
-      if (!data.content) {
-        throw new Error("No content received from server")
-      }
+      const generatedText =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "⚠️ AI did not return any text."
 
-      setGeneratedText(data.content)
+      setGeneratedText(generatedText)
 
-      // Create version with better naming
+      // Create version with template type
       const templateName = selectedTemplateId 
         ? letterTemplates.find(t => t.id === selectedTemplateId)?.title 
         : "Custom Prompt"
       
       createNewVersion(
-        data.content,
+        generatedText,
         templateName || "Generated Letter",
         "AI-generated content"
       )
 
       // Save to history
       const newHistoryItem: GeneratedLetter = {
-        type: data.type || "custom",
-        length: data.length || "unknown",
-        content: data.content,
+        type: templateType,
+        length: "1 page",
+        content: generatedText,
         timestamp: new Date().toISOString(),
       }
 
@@ -623,7 +643,7 @@ export default function LetterGeneratorPage() {
       const element = document.createElement("div")
       element.innerHTML = generatedText
       element.style.padding = "20px"
-      element.style.fontFamily = "Times New Roman, serif" // ✅ Times New Roman
+      element.style.fontFamily = "Times New Roman, serif" // Times New Roman
       element.style.lineHeight = "1.6"
       element.style.color = "#333"
       element.style.width = "800px"
@@ -633,7 +653,7 @@ export default function LetterGeneratorPage() {
       const imgData = canvas.toDataURL("image/png")
 
       const pdf = new jsPDF("p", "mm", "a4")
-      pdf.setFont("times", "normal") // ✅ Times New Roman
+      pdf.setFont("times", "normal") // Times New Roman
 
       const imgProps = pdf.getImageProperties(imgData)
       const pdfWidth = pdf.internal.pageSize.getWidth()
@@ -807,6 +827,7 @@ export default function LetterGeneratorPage() {
                     PDF
                   </Button>
                   
+
                   <Button
                     onClick={deleteGeneratedLetter}
                     variant="outline"
@@ -817,6 +838,7 @@ export default function LetterGeneratorPage() {
                     Delete
                   </Button>
                   
+
                   <Button
                     onClick={handleUndo}
                     disabled={!canUndo}
