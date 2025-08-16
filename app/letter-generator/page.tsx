@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
   Sparkles, History, AlertCircle, Edit3, Undo2, Redo2, 
-  Clock, Download, X 
+  Clock, Download, X, MoreVertical
 } from "lucide-react"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
@@ -473,7 +473,8 @@ export default function LetterGeneratorPage() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20"
+          size="sm"
+          className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 w-full sm:w-auto"
         >
           Choose Template
         </Button>
@@ -495,8 +496,64 @@ export default function LetterGeneratorPage() {
     </DropdownMenu>
   )
 
-  const ActionButtons = ({ isMobile = false }) => (
-    <div className={`flex ${isMobile ? 'flex-col sm:flex-row' : 'flex-row'} items-center gap-2`}>
+  // Mobile Action Buttons (More Menu)
+  const MobileActionMenu = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="bg-black/80 border-cyan-500/30 text-cyan-100 w-48">
+        <DropdownMenuItem
+          onClick={downloadAsPDF}
+          disabled={isDownloading}
+          className="cursor-pointer hover:bg-cyan-500/20"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          {isDownloading ? 'Downloading...' : 'Download PDF'}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => setShowVersionHistory(!showVersionHistory)}
+          className="cursor-pointer hover:bg-cyan-500/20"
+        >
+          <Clock className="h-4 w-4 mr-2" />
+          Version History
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={handleUndo}
+          disabled={!canUndo}
+          className="cursor-pointer hover:bg-cyan-500/20 disabled:opacity-50"
+        >
+          <Undo2 className="h-4 w-4 mr-2" />
+          Undo
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={handleRedo}
+          disabled={!canRedo}
+          className="cursor-pointer hover:bg-cyan-500/20 disabled:opacity-50"
+        >
+          <Redo2 className="h-4 w-4 mr-2" />
+          Redo
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={deleteGeneratedLetter}
+          className="cursor-pointer hover:bg-red-500/20 text-red-300"
+        >
+          <X className="h-4 w-4 mr-2" />
+          Delete Letter
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
+  // Desktop Action Buttons
+  const DesktopActionButtons = () => (
+    <div className="flex items-center gap-2">
       <Button
         onClick={downloadAsPDF}
         disabled={isDownloading}
@@ -551,7 +608,7 @@ export default function LetterGeneratorPage() {
         className={`${showVersionHistory ? 'bg-cyan-500/20 border-cyan-400/50' : 'bg-black/40 border-cyan-500/30'} text-cyan-300 hover:bg-cyan-500/20`}
       >
         <Clock className="h-4 w-4 mr-1" />
-        <span className={isMobile ? "hidden sm:inline" : ""}>Versions</span>
+        Versions
       </Button>
       
       <Button
@@ -560,8 +617,8 @@ export default function LetterGeneratorPage() {
         size="sm"
         className={`${isEditing ? 'bg-cyan-500/20 border-cyan-400/50' : 'bg-black/40 border-cyan-500/30'} text-cyan-300 hover:bg-cyan-500/20`}
       >
-        <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
-        <span className={isMobile ? "hidden sm:inline" : ""}>{isEditing ? 'Done' : 'Edit'}</span>
+        <Edit3 className="h-4 w-4 mr-1" />
+        {isEditing ? 'Done' : 'Edit'}
       </Button>
     </div>
   )
@@ -632,14 +689,16 @@ export default function LetterGeneratorPage() {
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div className="space-y-3">
                 <p className="text-xs text-cyan-400/60">{prompt.length} characters</p>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                
+                {/* Mobile Button Layout */}
+                <div className="space-y-2">
                   <TemplateDropdown />
                   <Button
                     onClick={generateLetter}
                     disabled={!prompt.trim() || isGenerating}
-                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2 rounded-lg font-medium shadow-lg shadow-cyan-500/30 disabled:opacity-50 text-sm"
+                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2 rounded-lg font-medium shadow-lg shadow-cyan-500/30 disabled:opacity-50 text-sm w-full"
                   >
                     {isGenerating ? (
                       <>
@@ -670,20 +729,34 @@ export default function LetterGeneratorPage() {
         {generatedText && (
           <Card className="bg-black/80 backdrop-blur-sm border-cyan-500/30 shadow-xl">
             <CardHeader className="border-b border-cyan-500/20 pb-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-cyan-100 font-serif text-lg">Generated Letter</CardTitle>
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <CardTitle className="text-cyan-100 font-serif text-lg truncate">
+                    Generated Letter
+                  </CardTitle>
                   {hasUnsavedChanges && (
-                    <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded border border-orange-500/30">
+                    <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded border border-orange-500/30 whitespace-nowrap">
                       Unsaved
                     </span>
                   )}
                 </div>
-                <ActionButtons isMobile={true} />
+                
+                {/* Mobile Action Buttons */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button
+                    onClick={() => setIsEditing(!isEditing)}
+                    variant="outline"
+                    size="sm"
+                    className={`${isEditing ? 'bg-cyan-500/20 border-cyan-400/50' : 'bg-black/40 border-cyan-500/30'} text-cyan-300 hover:bg-cyan-500/20`}
+                  >
+                    <Edit3 className="h-4 w-4" />
+                  </Button>
+                  <MobileActionMenu />
+                </div>
               </div>
             </CardHeader>
-            <CardContent className="p-4 sm:p-8 relative bg-gradient-to-br from-black/60 to-black/80">
-              <div className="bg-white rounded-lg p-6 border border-cyan-500/20 shadow-lg">
+            <CardContent className="p-4 relative bg-gradient-to-br from-black/60 to-black/80">
+              <div className="bg-white rounded-lg p-4 sm:p-6 border border-cyan-500/20 shadow-lg">
                 <RichTextEditor 
                   content={generatedText} 
                   isEditable={isEditing}
@@ -782,7 +855,7 @@ export default function LetterGeneratorPage() {
                     </span>
                   )}
                 </div>
-                {generatedText && <ActionButtons />}
+                {generatedText && <DesktopActionButtons />}
               </div>
             </CardHeader>
             <CardContent className="p-8 relative bg-gradient-to-br from-black/60 to-black/80">
@@ -817,6 +890,7 @@ export default function LetterGeneratorPage() {
         </div>
       </div>
 
+      {/* Mobile Version History */}
       <div className="lg:hidden">
         <VersionHistory
           versions={versions}
