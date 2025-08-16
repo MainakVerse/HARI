@@ -1,5 +1,7 @@
-"use client"
 export const dynamic = "force-dynamic";
+
+"use client"
+
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
