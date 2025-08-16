@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sparkles, History, AlertCircle, Edit3, Undo2, Redo2, Save, Clock, Download, Menu, X } from "lucide-react"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
-
 import ReactQuill from 'react-quill-new'
 import 'react-quill-new/dist/quill.snow.css'
+
+// Add this helper to check if code is running on client
+const isClient = typeof window !== 'undefined'
 
 // Rich text editor component with proper theming
 function RichTextEditor({ 
@@ -266,6 +268,7 @@ interface DocumentVersion {
 }
 
 export default function LetterGeneratorPage() {
+  const [title, setTitle] = useState<string | null>(null)
   const [prompt, setPrompt] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedText, setGeneratedText] = useState("")
@@ -290,8 +293,8 @@ export default function LetterGeneratorPage() {
 
   // ✅ Fixed localStorage loading with proper error handling
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
+    if (isClient) {
+      try {
         const savedHistory = localStorage.getItem("letterHistory")
         if (savedHistory) {
           const parsedHistory = JSON.parse(savedHistory)
@@ -313,55 +316,63 @@ export default function LetterGeneratorPage() {
         if (savedCurrentVersionIndex) {
           setCurrentVersionIndex(parseInt(savedCurrentVersionIndex))
         }
+      } catch (error) {
+        console.error("Error loading from localStorage:", error)
       }
-    } catch (error) {
-      console.error("Error loading from localStorage:", error)
     }
-  }, [])
+  }, [isClient])
 
   // ✅ Save history to localStorage when it changes
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined' && history.length > 0) {
-        localStorage.setItem("letterHistory", JSON.stringify(history))
+    if (isClient) {
+      try {
+        if (history.length > 0) {
+          localStorage.setItem("letterHistory", JSON.stringify(history))
+        }
+      } catch (error) {
+        console.error("Error saving history to localStorage:", error)
       }
-    } catch (error) {
-      console.error("Error saving history to localStorage:", error)
     }
-  }, [history])
+  }, [history, isClient])
 
   // Save versions to localStorage
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined' && versions.length > 0) {
-        localStorage.setItem("documentVersions", JSON.stringify(versions))
+    if (isClient) {
+      try {
+        if (versions.length > 0) {
+          localStorage.setItem("documentVersions", JSON.stringify(versions))
+        }
+      } catch (error) {
+        console.error("Error saving versions to localStorage:", error)
       }
-    } catch (error) {
-      console.error("Error saving versions to localStorage:", error)
     }
-  }, [versions])
+  }, [versions, isClient])
 
   // Save current generated text
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined' && generatedText) {
-        localStorage.setItem("currentGeneratedText", generatedText)
+    if (isClient) {
+      try {
+        if (generatedText) {
+          localStorage.setItem("currentGeneratedText", generatedText)
+        }
+      } catch (error) {
+        console.error("Error saving generated text to localStorage:", error)
       }
-    } catch (error) {
-      console.error("Error saving generated text to localStorage:", error)
     }
-  }, [generatedText])
+  }, [generatedText, isClient])
 
   // Save current version index
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined' && currentVersionIndex >= 0) {
-        localStorage.setItem("currentVersionIndex", currentVersionIndex.toString())
+    if (isClient) {
+      try {
+        if (currentVersionIndex >= 0) {
+          localStorage.setItem("currentVersionIndex", currentVersionIndex.toString())
+        }
+      } catch (error) {
+        console.error("Error saving version index to localStorage:", error)
       }
-    } catch (error) {
-      console.error("Error saving version index to localStorage:", error)
     }
-  }, [currentVersionIndex])
+  }, [currentVersionIndex, isClient])
 
   // Track unsaved changes
   useEffect(() => {
@@ -407,6 +418,8 @@ export default function LetterGeneratorPage() {
 
   // Improved version creation with better naming
   const createNewVersion = (content: string, name?: string, description?: string) => {
+    if (!isClient) return
+
     const timestamp = new Date()
     const timeString = timestamp.toLocaleTimeString([], { 
       hour: '2-digit', 
@@ -571,6 +584,8 @@ export default function LetterGeneratorPage() {
 
   // Update the save version handler
   const handleSaveVersion = () => {
+    if (!isClient) return
+
     const timestamp = new Date()
     const timeString = timestamp.toLocaleTimeString([], { 
       hour: '2-digit', 
@@ -668,7 +683,7 @@ export default function LetterGeneratorPage() {
     
     // Clear localStorage
     try {
-      if (typeof window !== 'undefined') {
+      if (isClient) {
         localStorage.removeItem("currentGeneratedText")
         localStorage.removeItem("documentVersions")
         localStorage.removeItem("currentVersionIndex")
@@ -721,142 +736,85 @@ export default function LetterGeneratorPage() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-sm"
+                        className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:text-cyan-200 hover:border-cyan-400"
                       >
-                        Choose Template
+                        <Menu className="h-4 w-4" />
+                        Templates
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-black/80 border-cyan-500/30 text-cyan-100 max-h-64 overflow-y-auto w-80">
-                      {letterTemplates.map((template: Template) => (
+                    <DropdownMenuContent>
+                      {letterTemplates.map((template) => (
                         <DropdownMenuItem
                           key={template.id}
                           onClick={() => handleTemplateSelect(template)}
-                          className="cursor-pointer hover:bg-cyan-500/20"
                         >
-                          <div>
-                            <div className="font-medium">{template.title}</div>
-                            <div className="text-xs text-cyan-400/70">{template.length}</div>
-                          </div>
+                          {template.title}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-
-                  <Button
-                    onClick={generateLetter}
-                    disabled={!prompt.trim() || isGenerating}
-                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2 rounded-lg font-medium shadow-lg shadow-cyan-500/30 disabled:opacity-50 text-sm"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Generate Letter
-                      </>
-                    )}
-                  </Button>
                 </div>
               </div>
-
-              {/* Error */}
-              {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
-                  <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
-                  <p className="text-red-300 text-sm">{error}</p>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Generated Letter - Mobile */}
+        {/* Generation Section */}
+        <Card className="bg-black/60 backdrop-blur-sm border-cyan-500/30 shadow-lg">
+          <CardHeader className="pb-4">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-white flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-cyan-400" />
+                Generate Letter
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-col space-y-4">
+            <Button
+              onClick={generateLetter}
+              disabled={isGenerating}
+              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+            >
+              {isGenerating ? "Generating..." : "Generate Letter"}
+            </Button>
+            {error && (
+              <div className="text-red-400 text-sm">{error}</div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Generated Content Section */}
         {generatedText && (
-          <Card className="bg-black/80 backdrop-blur-sm border-cyan-500/30 shadow-xl">
-            <CardHeader className="border-b border-cyan-500/20 pb-3">
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+          <Card className="bg-black/60 backdrop-blur-sm border-cyan-500/30 shadow-lg">
+            <CardHeader className="pb-4">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Edit3 className="h-5 w-5 text-cyan-400" />
+                  Your Letter
+                </CardTitle>
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-cyan-100 font-serif text-lg">Generated Letter</CardTitle>
-                  {hasUnsavedChanges && (
-                    <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded border border-orange-500/30">
-                      Unsaved
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     onClick={downloadAsPDF}
                     disabled={isDownloading}
-                    variant="outline"
-                    size="sm"
-                    className="bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
-                    {isDownloading ? (
-                      <div className="animate-spin rounded-full h-3 w-3 border-2 border-red-300 border-t-transparent mr-1" />
-                    ) : (
-                      <Download className="h-4 w-4 mr-1" />
-                    )}
-                    PDF
+                    <Download className="h-4 w-4 mr-1" />
+                    {isDownloading ? "Downloading..." : "Download PDF"}
                   </Button>
-                  
                   <Button
                     onClick={deleteGeneratedLetter}
-                    variant="outline"
-                    size="sm"
-                    className="bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30"
+                    variant="ghost"
+                    className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20"
                   >
-                    <X className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                  
-                  <Button
-                    onClick={handleUndo}
-                    disabled={!canUndo}
-                    variant="outline"
-                    size="sm"
-                    className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-30"
-                    title="Undo"
-                  >
-                    <Undo2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={handleRedo}
-                    disabled={!canRedo}
-                    variant="outline"
-                    size="sm"
-                    className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-30"
-                    title="Redo"
-                  >
-                    <Redo2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={() => setShowVersionHistory(!showVersionHistory)}
-                    variant="outline"
-                    size="sm"
-                    className={`${showVersionHistory ? 'bg-cyan-500/20 border-cyan-400/50' : 'bg-black/40 border-cyan-500/30'} text-cyan-300 hover:bg-cyan-500/20`}
-                  >
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Versions</span>
-                  </Button>
-                  <Button
-                    onClick={toggleEditing}
-                    variant="outline"
-                    size="sm"
-                    className={`${isEditing ? 'bg-cyan-500/20 border-cyan-400/50' : 'bg-black/40 border-cyan-500/30'} text-cyan-300 hover:bg-cyan-500/20`}
-                  >
-                    <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">{isEditing ? 'Done' : 'Edit'}</span>
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-4 sm:p-8 relative bg-gradient-to-br from-black/60 to-black/80">
-              <div className="bg-white rounded-lg p-6 border border-cyan-500/20 shadow-lg">
+            <CardContent>
+              <div className="space-y-4">
                 <RichTextEditor 
-                  content={generatedText} 
+                  content={generatedText}
                   isEditable={isEditing}
                   onContentChange={handleContentChange}
                 />
@@ -865,303 +823,105 @@ export default function LetterGeneratorPage() {
           </Card>
         )}
 
-        {/* Mobile History Toggle */}
-        <div className="flex justify-center">
-          <Button
-            onClick={() => setShowMobileHistory(!showMobileHistory)}
-            variant="outline"
-            className="bg-black/60 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20"
-          >
-            <History className="h-4 w-4 mr-2" />
-            {showMobileHistory ? 'Hide History' : 'Show History'}
-          </Button>
-        </div>
-
-        {/* Mobile History */}
+        {/* Version History Section */}
         {showMobileHistory && (
-          <Card className="bg-black/60 backdrop-blur-sm border-cyan-500/30 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <History className="h-5 w-5 text-cyan-400" />
-                Recent Generations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {history.length > 0 ? (
-                <div className="space-y-3">
-                  {history.map((item, i) => (
-                    <div
-                      key={i}
-                      className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/15 transition-colors"
-                      onClick={() => handleHistoryItemClick(item)}
-                    >
-                      <div className="text-xs text-cyan-400/70 mb-1 flex justify-between">
-                        <span>{item.type}</span>
-                        <span>{new Date(item.timestamp).toLocaleDateString()}</span>
-                      </div>
-                      <div className="text-sm text-cyan-200 line-clamp-3">
-                        {item.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-cyan-400/50 text-sm">No history yet.</p>
-              )}
-            </CardContent>
-          </Card>
+          <VersionHistory
+            versions={versions}
+            currentVersionIndex={currentVersionIndex}
+            onVersionSelect={handleVersionSelect}
+            onSaveVersion={handleSaveVersion}
+            isVisible={showMobileHistory}
+            onClose={() => setShowMobileHistory(false)}
+          />
         )}
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:grid grid-cols-12 gap-6">
-        
-        {/* LEFT SIDE */}
-        <div className="col-span-8 space-y-6">
-          <Card className="bg-black/60 backdrop-blur-sm border-cyan-500/30 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-cyan-400" />
-                Describe Your Letter
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Textarea
-                  placeholder="Choose a template from dropdown or write your own prompt..."
-                  value={prompt}
-                  onChange={(e) => handlePromptChange(e.target.value)}
-                  className="min-h-32 resize-none bg-black/40 border-cyan-500/30 focus:border-cyan-400 text-white placeholder:text-cyan-300/50"
+      <div className="hidden lg:block">
+        {/* Content Section */}
+        <div className="space-y-4">
+          {/* Generation Controls */}
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-wrap gap-4">
+              <div className="flex-1">
+                <RichTextEditor 
+                  content={prompt}
+                  isEditable={true}
+                  onContentChange={handlePromptChange}
                 />
-
-                {/* Show variables info if template selected */}
-                {selectedTemplateId && (
-                  <div className="text-xs text-cyan-400/70">
-                    <p>Using template: {letterTemplates.find(t => t.id === selectedTemplateId)?.title}</p>
-                    {extractVariables(prompt).length > 0 && (
-                      <p>Variables detected: {extractVariables(prompt).join(', ')}</p>
-                    )}
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center gap-3">
-                  <p className="text-xs text-cyan-400/60">{prompt.length} characters</p>
-                  <div className="flex items-center gap-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20"
-                        >
-                          Choose Template
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-black/80 border-cyan-500/30 text-cyan-100 max-h-64 overflow-y-auto">
-                        {letterTemplates.map((template: Template) => (
-                          <DropdownMenuItem
-                            key={template.id}
-                            onClick={() => handleTemplateSelect(template)}
-                            className="cursor-pointer hover:bg-cyan-500/20"
-                          >
-                            <div>
-                              <div className="font-medium">{template.title}</div>
-                              <div className="text-xs text-cyan-400/70">{template.length}</div>
-                            </div>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <Button
-                      onClick={generateLetter}
-                      disabled={!prompt.trim() || isGenerating}
-                      className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-6 py-2 rounded-lg font-medium shadow-lg shadow-cyan-500/30 disabled:opacity-50"
-                    >
-                      {isGenerating ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Generate Letter
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Error */}
-                {error && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
-                    <AlertCircle className="h-4 w-4 text-red-400" />
-                    <p className="text-red-300 text-sm">{error}</p>
-                  </div>
-                )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {/* Generated Letter - Updated with dark theme */}
-          <Card className="bg-black/80 backdrop-blur-sm border-cyan-500/30 shadow-xl">
-            <CardHeader className="border-b border-cyan-500/20">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-cyan-100 font-serif">Generated Letter</CardTitle>
-                  {hasUnsavedChanges && (
-                    <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded border border-orange-500/30">
-                      Unsaved changes
-                    </span>
-                  )}
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2">
+              <Button
+                onClick={generateLetter}
+                disabled={isGenerating}
+                className="bg-cyan-500 hover:bg-cyan-600 text-white"
+              >
+                {isGenerating ? "Generating..." : "Generate Letter"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Generated Content */}
+          {generatedText && (
+            <div className="mt-8">
+              <RichTextEditor 
+                content={generatedText}
+                isEditable={isEditing}
+                onContentChange={handleContentChange}
+              />
+              <div className="flex justify-between items-center mt-4">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSaveVersion}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Save className="h-4 w-4 mr-1" />
+                    Save Version
+                  </Button>
+                  <Button
+                    onClick={handleUndo}
+                    disabled={!canUndo}
+                    variant="ghost"
+                    className="text-gray-500 disabled:opacity-50"
+                  >
+                    <Undo2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={handleRedo}
+                    disabled={!canRedo}
+                    variant="ghost"
+                    className="text-gray-500 disabled:opacity-50"
+                  >
+                    <Redo2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                {generatedText && (
-                  <div className="flex items-center gap-2">
-                    {/* PDF Download button */}
-                    <Button
-                      onClick={downloadAsPDF}
-                      disabled={isDownloading}
-                      variant="outline"
-                      size="sm"
-                      className="bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30"
-                    >
-                      {isDownloading ? (
-                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-red-300 border-t-transparent mr-1" />
-                      ) : (
-                        <Download className="h-4 w-4 mr-1" />
-                      )}
-                      PDF
-                    </Button>
-
-                    <Button
-                      onClick={deleteGeneratedLetter}
-                      variant="outline"
-                      size="sm"
-                      className="bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30"
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Delete
-                    </Button>
-                    
-                    {/* Version control buttons */}
-                    <Button
-                      onClick={handleUndo}
-                      disabled={!canUndo}
-                      variant="outline"
-                      size="sm"
-                      className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-30"
-                      title="Undo"
-                    >
-                      <Undo2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      onClick={handleRedo}
-                      disabled={!canRedo}
-                      variant="outline"
-                      size="sm"
-                      className="bg-black/40 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-30"
-                      title="Redo"
-                    >
-                      <Redo2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      onClick={() => setShowVersionHistory(!showVersionHistory)}
-                      variant="outline"
-                      size="sm"
-                      className={`${showVersionHistory ? 'bg-cyan-500/20 border-cyan-400/50' : 'bg-black/40 border-cyan-500/30'} text-cyan-300 hover:bg-cyan-500/20`}
-                    >
-                      <Clock className="h-4 w-4 mr-1" />
-                      Versions
-                    </Button>
-                    <Button
-                      onClick={toggleEditing}
-                      variant="outline"
-                      size="sm"
-                      className={`${isEditing ? 'bg-cyan-500/20 border-cyan-400/50' : 'bg-black/40 border-cyan-500/30'} text-cyan-300 hover:bg-cyan-500/20`}
-                    >
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      {isEditing ? 'Done Editing' : 'Edit'}
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={downloadAsPDF}
+                    disabled={isDownloading}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    {isDownloading ? "Downloading..." : "Download PDF"}
+                  </Button>
+                  <Button
+                    onClick={deleteGeneratedLetter}
+                    variant="ghost"
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent className="p-8 relative bg-gradient-to-br from-black/60 to-black/80">
-              {generatedText ? (
-                <div className="bg-white/95 backdrop-blur-sm rounded-lg p-8 border border-cyan-500/20">
-                  <RichTextEditor 
-                    content={generatedText} 
-                    isEditable={isEditing}
-                    onContentChange={handleContentChange}
-                  />
-                </div>
-              ) : (
-                <p className="text-cyan-400/60 text-sm italic">No letter generated yet.</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Version History - Desktop only shows here */}
-          {showVersionHistory && (
-            <VersionHistory
-              versions={versions}
-              currentVersionIndex={currentVersionIndex}
-              onVersionSelect={handleVersionSelect}
-              onSaveVersion={handleSaveVersion}
-              isVisible={showVersionHistory}
-              onClose={() => setShowVersionHistory(false)}
-            />
+            </div>
           )}
         </div>
-
-        {/* RIGHT SIDE */}
-        <div className="col-span-4">
-          <Card className="bg-black/60 backdrop-blur-sm border-cyan-500/30 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <History className="h-5 w-5 text-cyan-400" />
-                Recent Generations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {history.length > 0 ? (
-                <div className="space-y-3">
-                  {history.map((item, i) => (
-                    <div
-                      key={i}
-                      className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/15 transition-colors"
-                      onClick={() => handleHistoryItemClick(item)}
-                    >
-                      <div className="text-xs text-cyan-400/70 mb-1 flex justify-between">
-                        <span>{item.type}</span>
-                        <span>{new Date(item.timestamp).toLocaleDateString()}</span>
-                      </div>
-                      <div className="text-sm text-cyan-200 line-clamp-3">
-                        {item.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-cyan-400/50 text-sm">No history yet.</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
       </div>
-
-      {/* Mobile Version History Modal - Only renders on mobile */}
-      <div className="lg:hidden">
-        <VersionHistory
-          versions={versions}
-          currentVersionIndex={currentVersionIndex}
-          onVersionSelect={handleVersionSelect}
-          onSaveVersion={handleSaveVersion}
-          isVisible={showVersionHistory}
-          onClose={() => setShowVersionHistory(false)}
-        />
-      </div>
-      <Footer />
     </main>
   )
 }
