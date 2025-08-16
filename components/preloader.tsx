@@ -69,7 +69,7 @@ export default function Preloader() {
   if (!isLoading) return null
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
       {/* 3D Neon Cube */}
       <div className="w-64 h-64 mb-8">
         <Canvas camera={{ position: [0, 0, 5] }}>
