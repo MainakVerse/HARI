@@ -1,10 +1,11 @@
 [
   {
-    "id": "jobOffer",
-    "title": "Job offer letter",
-    "length": "4-5 pages",
-    "prompt": "Generate a comprehensive IT-sector job offer letter for [Company Name] to [Candidate Name] for [Job Title] in [Department] at [Location], start date [Start Date]. Include: CTC table with fixed/variable/benefits, ESOP (if any), probation terms, notice period, working hours, leave summary, remote/hybrid policy, background verification and medical fitness contingencies, confidentiality, IP assignment, non-solicitation, data privacy (India + [State] Shops & Establishments), code of conduct, acceptance deadline, required documents, and annexures (CTC breakup, policy acknowledgments). Use clear headings, numbered clauses, and a formal, precise tone."
-  },
+  "id": "jobOffer",
+  "title": "Job offer letter",
+  "length": "3-4 pages",
+  "prompt": "Generate a concise IT-sector job offer letter for [Company Name] to [Candidate Name] for [Job Title] in [Department] at [Location], starting on [Start Date]. Include: CTC summary (fixed/variable), probation period, notice period, working hours, leave, confidentiality, IP assignment, and acceptance instructions. Use clear headings, numbered clauses, and a formal, professional tone."
+}
+,
   {
     "id": "appointment",
     "title": "Appointment letter",
