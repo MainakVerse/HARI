@@ -1,4 +1,4 @@
-# AVTAR:8 - *HARI: Human Assets & Resources Intelligence*. 
+# 8th Avtar - *HARI: Human Assets & Resources Intelligence*. 
 
 
 
