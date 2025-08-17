@@ -17,3 +17,15 @@
 | 6 | Resource Management System |
 | 7 | Attendance Management System | 
 | 8 | Smart Payroll | 
+| 9 | Leave Management System |
+| 10 | Recruitment & Application Tracking |
+| 11 | Onboarding Management |
+| 12 | Training and Development Moduler |
+| 13 | Benefits Management System |
+| 14 | Tax & Compliances Management |
+| 15 | Event Management System | 
+| 16 | Offboarding Management |
+| 17 | Performance Improvement Programme Management |
+| 18 | Employee Health & Well-Being |
+| 19 | Analytics & Reporting |
+| 20 | Role-Based Access Control Manager |
