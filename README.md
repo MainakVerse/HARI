@@ -1,5 +1,5 @@
-# *HARI: Human Assets & Resources Intelligence*. 
-## The 8th Avtar of Vishnu and the Most Intelligent Avtar
+# AVTAR:8 - *HARI: Human Assets & Resources Intelligence*. 
+
 
 
 <img width="1891" height="873" alt="image" src="https://github.com/user-attachments/assets/ab997b17-30ed-45d7-aa1c-7c6c5dff4b0e" />
