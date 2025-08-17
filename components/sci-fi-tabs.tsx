@@ -8,7 +8,7 @@ const tabs = [
   { id: "fast-generate", label: "Fast Generate" },
   { id: "deep-generate", label: "Deep Generate" },
   { id: "audit", label: "Audit" },
-  { id: "usage", label: "Usage" },
+  { id: "delivery", label: "Delivery" },
   { id: "ask-baldeo", label: "Ask Baldeo" },
 ]
 
@@ -128,11 +128,11 @@ export function SciFiTabs() {
               </div>
             )}
 
-            {activeTab === "usage" && (
+            {activeTab === "delivery" && (
               <div>
-                <h2 className="text-2xl text-center font-bold mb-6 text-cyan-300">Usage (Murari Mode)</h2>
+                <h2 className="text-2xl text-center font-bold mb-6 text-cyan-300">Delivery (Giridhari Mode)</h2>
                 <div className="text-muted-foreground">
-                  <p className="mb-6">Monitor your API usage and generation statistics.</p>
+                  <p className="mb-6">Monitor your API delivery and generation statistics.</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="p-4 bg-card/50 rounded-lg border border-cyan-500/20 text-center">
                       <div className="text-2xl font-bold text-cyan-300 mb-2">1,247</div>
