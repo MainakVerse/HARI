@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import LetterGenerator  from "./letter-generator"
+import AdvancedLetterGeneration from "./advanced-letter-generation"
 
 const tabs = [
   { id: "fast-generate", label: "Fast Generate" },
@@ -89,19 +90,7 @@ export function SciFiTabs() {
             {activeTab === "deep-generate" && (
               <div>
                 <h2 className="text-2xl text-center font-bold mb-6 text-cyan-300">Deep Generate (Madhav Mode)</h2>
-                <div className="text-muted-foreground">
-                  <p className="mb-4">Advanced generation with detailed analysis and comprehensive output.</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-card/50 rounded-lg border border-cyan-500/20">
-                      <h3 className="font-semibold text-foreground mb-2">Enhanced Processing</h3>
-                      <p className="text-sm">Utilize advanced algorithms for superior results.</p>
-                    </div>
-                    <div className="p-4 bg-card/50 rounded-lg border border-cyan-500/20">
-                      <h3 className="font-semibold text-foreground mb-2">Quality Assurance</h3>
-                      <p className="text-sm">Multiple validation layers ensure accuracy.</p>
-                    </div>
-                  </div>
-                </div>
+                <AdvancedLetterGeneration />
               </div>
             )}
 
